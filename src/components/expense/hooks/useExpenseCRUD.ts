@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Expense } from "@/types/expense";
 
 export const useExpenseCRUD = () => {
-  const { expenses, setExpenses, deleteExpense, editExpense } = useExpenses();
+  const { expenses, setExpenses, deleteExpense, editExpense, currentDate } = useExpenses();
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
@@ -14,9 +14,15 @@ export const useExpenseCRUD = () => {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
+        // Calcular el primer y último día del mes seleccionado
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
         const { data, error } = await supabase
           .from('expenses')
           .select('*')
+          .gte('date', startOfMonth.toISOString())
+          .lte('date', endOfMonth.toISOString())
           .order('date', { ascending: false });
 
         if (error) throw error;
@@ -35,7 +41,7 @@ export const useExpenseCRUD = () => {
     };
 
     fetchExpenses();
-  }, [setExpenses, toast]);
+  }, [setExpenses, toast, currentDate]); // Agregamos currentDate como dependencia
 
   const handleDelete = async (id: string) => {
     try {
@@ -51,17 +57,16 @@ export const useExpenseCRUD = () => {
       if (error) throw error;
 
       deleteExpense(id);
-      
       toast({
         title: "Gasto eliminado",
-        description: "El gasto ha sido eliminado exitosamente",
+        description: "El gasto ha sido eliminado exitosamente"
       });
     } catch (error) {
       console.error('Error deleting expense:', error);
       toast({
         title: "Error",
         description: "No se pudo eliminar el gasto",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
@@ -75,31 +80,23 @@ export const useExpenseCRUD = () => {
     try {
       const { error } = await supabase
         .from('expenses')
-        .update({
-          description: updatedExpense.description,
-          costCenter: updatedExpense.costCenter,
-          amount: updatedExpense.amount,
-          date: updatedExpense.date,
-          ddiCode: updatedExpense.ddiCode
-        })
+        .update(updatedExpense)
         .eq('id', updatedExpense.id);
 
       if (error) throw error;
 
       editExpense(updatedExpense);
       setIsEditDialogOpen(false);
-      setEditingExpense(null);
-      
       toast({
         title: "Gasto actualizado",
-        description: "El gasto ha sido actualizado exitosamente.",
+        description: "El gasto ha sido actualizado exitosamente"
       });
     } catch (error) {
       console.error('Error updating expense:', error);
       toast({
         title: "Error",
         description: "No se pudo actualizar el gasto",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };

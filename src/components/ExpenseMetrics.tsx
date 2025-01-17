@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { DollarSign, ArrowDown, ArrowUp, ChevronLeft, ChevronRight } from "lucide-react";
+import { DollarSign, ArrowDown, ArrowUp } from "lucide-react";
 import { useExpenses } from "@/context/ExpenseContext";
 import { useMonthlyBudget } from "./expense/hooks/useMonthlyBudget";
 import { Button } from "./ui/button";
@@ -8,7 +8,7 @@ import { useState } from "react";
 
 export const ExpenseMetrics = () => {
   const { expenses } = useExpenses();
-  const { budget, formattedMonth, navigateMonth, saveBudget, isLoading } = useMonthlyBudget();
+  const { budget, formattedMonth, saveBudget, isLoading } = useMonthlyBudget();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const spent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
@@ -29,14 +29,6 @@ export const ExpenseMetrics = () => {
         <Button onClick={() => setIsDialogOpen(true)}>
           Establecer Presupuesto
         </Button>
-        <div className="flex justify-center gap-4 mt-4">
-          <Button variant="ghost" size="icon" onClick={() => navigateMonth('prev')}>
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => navigateMonth('next')}>
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
         <SetBudgetDialog
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
@@ -49,16 +41,6 @@ export const ExpenseMetrics = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
-        <Button variant="ghost" size="icon" onClick={() => navigateMonth('prev')}>
-          <ChevronLeft className="w-4 h-4" />
-        </Button>
-        <h2 className="text-lg font-semibold">{formattedMonth}</h2>
-        <Button variant="ghost" size="icon" onClick={() => navigateMonth('next')}>
-          <ChevronRight className="w-4 h-4" />
-        </Button>
-      </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
         <Card className="p-4 md:p-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">

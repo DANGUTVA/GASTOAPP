@@ -27,7 +27,27 @@ export const useExpenseCRUD = () => {
 
         if (error) throw error;
 
-        setExpenses(data as Expense[]);
+        // Verificar la existencia de recibos para cada gasto
+        const expensesWithReceiptStatus = await Promise.all((data as Expense[]).map(async (expense) => {
+          try {
+            const { data: fileData, error: fileError } = await supabase
+              .storage
+              .from('receipts')
+              .download(`receipt-${expense.id}.jpg`);
+
+            return {
+              ...expense,
+              hasReceipt: !fileError && fileData !== null
+            };
+          } catch {
+            return {
+              ...expense,
+              hasReceipt: false
+            };
+          }
+        }));
+
+        setExpenses(expensesWithReceiptStatus);
       } catch (error) {
         console.error('Error fetching expenses:', error);
         toast({

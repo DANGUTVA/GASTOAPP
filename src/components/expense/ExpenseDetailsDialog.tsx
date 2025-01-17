@@ -67,14 +67,17 @@ export const ExpenseDetailsDialog = ({
 
             <div className="pt-2">
               <h3 className="text-sm font-medium text-gray-500 mb-2">Factura</h3>
-              <div className="flex items-center justify-center bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center justify-center bg-gray-50 rounded-lg p-4 min-h-[200px]">
                 {isLoading ? (
-                  <div className="text-center text-gray-500">Cargando imagen...</div>
-                ) : imageUrl ? (
+                  <div className="text-center text-gray-500">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
+                    <span>Cargando imagen...</span>
+                  </div>
+                ) : expense.hasReceipt && imageUrl ? (
                   <img
                     src={imageUrl}
                     alt="Factura"
-                    className="max-w-full h-auto max-h-[150px] object-contain rounded-lg"
+                    className="max-w-full h-auto max-h-[200px] object-contain rounded-lg"
                   />
                 ) : (
                   <div className="flex flex-col items-center text-gray-500">

@@ -5,6 +5,7 @@ export interface Expense {
   costCenter: string;
   amount: number;
   ddiCode: string;
+  hasReceipt: boolean;
   created_at?: string;
 }
 

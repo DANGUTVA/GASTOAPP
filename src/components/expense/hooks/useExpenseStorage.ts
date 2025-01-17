@@ -4,28 +4,15 @@ import { useToast } from "@/hooks/use-toast";
 
 export const useExpenseStorage = () => {
   const { toast } = useToast();
-  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
 
   const handleViewImage = async (expenseId: string) => {
     try {
       setIsLoadingImage(true);
-      setIsImageDialogOpen(true);
       setSelectedImage(null);
 
-      // Verificar si el archivo existe usando download
-      const { data, error: downloadError } = await supabase
-        .storage
-        .from('receipts')
-        .download(`receipt-${expenseId}.jpg`);
-
-      if (downloadError) {
-        console.error('Error al verificar la imagen:', downloadError);
-        throw new Error('No se encontró la imagen para este gasto');
-      }
-
-      // Si llegamos aquí, el archivo existe, obtener la URL pública
+      // Obtener la URL pública directamente
       const { data: urlData } = supabase
         .storage
         .from('receipts')
@@ -33,6 +20,12 @@ export const useExpenseStorage = () => {
 
       if (!urlData.publicUrl) {
         throw new Error('Error al obtener la URL de la imagen');
+      }
+
+      // Verificar si la imagen existe haciendo una petición HEAD
+      const response = await fetch(urlData.publicUrl, { method: 'HEAD' });
+      if (!response.ok) {
+        throw new Error('No se encontró la imagen para este gasto');
       }
 
       setSelectedImage(urlData.publicUrl);
@@ -43,17 +36,15 @@ export const useExpenseStorage = () => {
         description: error instanceof Error ? error.message : "Error al cargar la imagen",
         variant: "destructive",
       });
-      setIsImageDialogOpen(false);
+      setSelectedImage(null);
     } finally {
       setIsLoadingImage(false);
     }
   };
 
   return {
-    isImageDialogOpen,
-    setIsImageDialogOpen,
     selectedImage,
     isLoadingImage,
-    handleViewImage
+    handleViewImage,
   };
 };

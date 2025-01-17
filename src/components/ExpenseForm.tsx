@@ -23,7 +23,7 @@ export const ExpenseForm = () => {
   } = useExpenseForm();
 
   return (
-    <Card className="p-4 md:p-6 mb-6 md:mb-8">
+    <Card className="p-4 mb-6 md:mb-8">
       <h2 className="text-lg font-semibold mb-4">Agregar Gasto</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -31,6 +31,7 @@ export const ExpenseForm = () => {
             placeholder="Descripción"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            className="w-full"
           />
         </div>
 
@@ -39,6 +40,7 @@ export const ExpenseForm = () => {
             costCenter={costCenter}
             costCenters={costCenters}
             onValueChange={handleCostCenterChange}
+            className="w-full"
           />
         </div>
 
@@ -48,6 +50,7 @@ export const ExpenseForm = () => {
             placeholder="Monto"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
+            className="w-full"
           />
         </div>
 

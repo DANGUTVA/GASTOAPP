@@ -32,10 +32,11 @@ export const ExpenseList = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Lista de Gastos</h2>
-        <div className="w-72">
+        <div className="w-full">
           <Select
             value={selectedCostCenter}
             onValueChange={setSelectedCostCenter}
+            className="w-full"
           >
             <SelectTrigger>
               <SelectValue placeholder="Filtrar por centro de costo" />

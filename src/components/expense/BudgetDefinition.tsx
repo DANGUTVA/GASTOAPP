@@ -8,8 +8,8 @@ export const BudgetDefinition = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 text-center space-y-4">
-      <h2 className="text-xl font-semibold">
+    <div className="bg-white rounded-lg shadow p-4 text-center space-y-4">
+      <h2 className="text-lg font-semibold">
         No hay presupuesto establecido para {formattedMonth}
       </h2>
       <p className="text-gray-600">
@@ -17,7 +17,7 @@ export const BudgetDefinition = () => {
       </p>
       <Button 
         onClick={() => setIsDialogOpen(true)}
-        className="bg-blue-600 hover:bg-blue-700"
+        className="bg-blue-600 hover:bg-blue-700 w-full"
       >
         Establecer Presupuesto
       </Button>

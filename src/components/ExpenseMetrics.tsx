@@ -42,7 +42,7 @@ export const ExpenseMetrics = () => {
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
-        <Card className="p-4 md:p-6">
+        <Card className="p-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <DollarSign className="w-4 h-4" />
             <span>Presupuesto</span>
@@ -52,7 +52,7 @@ export const ExpenseMetrics = () => {
           </div>
         </Card>
 
-        <Card className="p-4 md:p-6">
+        <Card className="p-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <ArrowUp className="w-4 h-4 text-green-600" />
             <span>Disponible</span>
@@ -62,7 +62,7 @@ export const ExpenseMetrics = () => {
           </div>
         </Card>
 
-        <Card className="p-4 md:p-6 sm:col-span-2 lg:col-span-1">
+        <Card className="p-4 sm:col-span-2 lg:col-span-1">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <ArrowDown className="w-4 h-4 text-red-600" />
             <span>Gastado</span>

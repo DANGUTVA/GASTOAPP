@@ -1,67 +1,76 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Pencil, Trash } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency, formatDate } from "@/lib/utils";
 import { Expense } from "@/types/expense";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface ExpenseTableProps {
   expenses: Expense[];
   onEdit: (expense: Expense) => void;
   onDelete: (id: string) => void;
-  onViewImage: (id: string) => void;
+  onViewDetails: (expense: Expense) => void;
 }
 
-export const ExpenseTable = ({ expenses, onEdit, onDelete, onViewImage }: ExpenseTableProps) => {
+export const ExpenseTable = ({ expenses, onEdit, onDelete, onViewDetails }: ExpenseTableProps) => {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[50px]">#</TableHead>
-          <TableHead>Fecha</TableHead>
-          <TableHead>Descripción</TableHead>
-          <TableHead>Centro de Costo</TableHead>
-          <TableHead>Código DDI</TableHead>
-          <TableHead className="text-right">Monto</TableHead>
-          <TableHead className="text-right">Acciones</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {expenses.map((expense, index) => (
-          <TableRow key={expense.id}>
-            <TableCell>{index + 1}</TableCell>
-            <TableCell>{formatDate(expense.date)}</TableCell>
-            <TableCell>{expense.description}</TableCell>
-            <TableCell>{expense.costCenter}</TableCell>
-            <TableCell>{expense.ddiCode}</TableCell>
-            <TableCell className="text-right">{formatCurrency(expense.amount)}</TableCell>
-            <TableCell className="text-right">
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onViewImage(expense.id)}
-                >
-                  <Eye className="h-4 w-4 text-[#8E9196]" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(expense)}
-                >
-                  <Pencil className="h-4 w-4 text-[#0FA0CE]" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onDelete(expense.id)}
-                >
-                  <Trash className="h-4 w-4 text-[#ea384c]" />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="p-2 text-left">#</th>
+            <th className="p-2 text-left">FECHA</th>
+            <th className="p-2 text-left">DESCRIPCIÓN</th>
+            <th className="p-2 text-left">CENTRO DE COSTO</th>
+            <th className="p-2 text-left">CÓDIGO DDI</th>
+            <th className="p-2 text-right">MONTO</th>
+            <th className="p-2 text-center">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          {expenses.map((expense, index) => (
+            <tr key={expense.id} className="border-b hover:bg-gray-50">
+              <td className="p-2">{index + 1}</td>
+              <td className="p-2">
+                {format(new Date(expense.date), "dd-MM-yyyy", { locale: es })}
+              </td>
+              <td className="p-2">{expense.description}</td>
+              <td className="p-2">{expense.costCenter}</td>
+              <td className="p-2">{expense.ddiCode || "-"}</td>
+              <td className="p-2 text-right">
+                ₡{expense.amount.toLocaleString("es-CR", { minimumFractionDigits: 2 })}
+              </td>
+              <td className="p-2">
+                <div className="flex justify-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onViewDetails(expense)}
+                    title="Ver detalles"
+                  >
+                    <Eye className="h-4 w-4 text-[#8E9196]" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(expense)}
+                    title="Editar"
+                  >
+                    <Pencil className="h-4 w-4 text-[#0FA0CE]" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(expense.id)}
+                    title="Eliminar"
+                  >
+                    <Trash2 className="h-4 w-4 text-[#ea384c]" />
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };

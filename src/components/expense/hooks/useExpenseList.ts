@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useExpenseCRUD } from "./useExpenseCRUD";
 import { useExpenseStorage } from "./useExpenseStorage";
+import { Expense } from "@/types/expense";
 
 export const useExpenseList = () => {
   const {
@@ -23,6 +24,16 @@ export const useExpenseList = () => {
   } = useExpenseStorage();
 
   const [selectedCostCenter, setSelectedCostCenter] = useState<string>("all");
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState<boolean>(false);
+
+  const handleViewDetails = async (expense: Expense) => {
+    setSelectedExpense(expense);
+    setIsDetailsDialogOpen(true);
+    if (expense.hasReceipt) {
+      await handleViewImage(expense.id);
+    }
+  };
 
   const filteredExpenses = selectedCostCenter === "all"
     ? expenses
@@ -36,14 +47,15 @@ export const useExpenseList = () => {
     isEditDialogOpen,
     setIsEditDialogOpen,
     editingExpense,
-    isImageDialogOpen,
-    setIsImageDialogOpen,
+    isDetailsDialogOpen,
+    setIsDetailsDialogOpen,
     selectedImage,
     isLoadingImage,
+    selectedExpense,
     handleDelete,
     handleEdit,
     handleSaveEdit,
-    handleViewImage,
+    handleViewDetails,
     costCenters: uniqueCostCenters,
     selectedCostCenter,
     setSelectedCostCenter

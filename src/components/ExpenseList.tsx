@@ -1,5 +1,5 @@
 import { ExpenseTable } from "./expense/ExpenseTable";
-import { ImagePreviewDialog } from "./expense/ImagePreviewDialog";
+import { ExpenseDetailsDialog } from "./expense/ExpenseDetailsDialog";
 import { EditExpenseDialog } from "./expense/EditExpenseDialog";
 import { useExpenseList } from "./expense/hooks/useExpenseList";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,14 +11,15 @@ export const ExpenseList = () => {
     isEditDialogOpen,
     setIsEditDialogOpen,
     editingExpense,
-    isImageDialogOpen,
-    setIsImageDialogOpen,
+    isDetailsDialogOpen,
+    setIsDetailsDialogOpen,
     selectedImage,
     isLoadingImage,
+    selectedExpense,
     handleDelete,
     handleEdit,
     handleSaveEdit,
-    handleViewImage,
+    handleViewDetails,
     costCenters,
     selectedCostCenter,
     setSelectedCostCenter
@@ -32,11 +33,10 @@ export const ExpenseList = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Lista de Gastos</h2>
-        <div className="w-full">
+        <div className="w-full max-w-xs">
           <Select
             value={selectedCostCenter}
             onValueChange={setSelectedCostCenter}
-            className="w-full"
           >
             <SelectTrigger>
               <SelectValue placeholder="Filtrar por centro de costo" />
@@ -59,7 +59,7 @@ export const ExpenseList = () => {
         expenses={expenses}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        onViewImage={handleViewImage}
+        onViewDetails={handleViewDetails}
       />
 
       <EditExpenseDialog
@@ -70,9 +70,10 @@ export const ExpenseList = () => {
         costCenters={costCenters}
       />
 
-      <ImagePreviewDialog
-        isOpen={isImageDialogOpen}
-        onClose={() => setIsImageDialogOpen(false)}
+      <ExpenseDetailsDialog
+        isOpen={isDetailsDialogOpen}
+        onClose={() => setIsDetailsDialogOpen(false)}
+        expense={selectedExpense}
         imageUrl={selectedImage}
         isLoading={isLoadingImage}
       />

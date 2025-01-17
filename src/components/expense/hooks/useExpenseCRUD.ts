@@ -44,6 +44,9 @@ export const useExpenseCRUD = () => {
   }, [setExpenses, toast, currentDate]); // Agregamos currentDate como dependencia
 
   const handleDelete = async (id: string) => {
+    const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este gasto?");
+    if (!confirmDelete) return;
+
     try {
       await supabase.storage
         .from('receipts')

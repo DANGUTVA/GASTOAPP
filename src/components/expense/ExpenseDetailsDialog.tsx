@@ -7,7 +7,7 @@ import {
 import { Expense } from "@/types/expense";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ImageOff } from "lucide-react";
+import { ImageOff, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ExpenseDetailsDialogProps {
@@ -74,11 +74,39 @@ export const ExpenseDetailsDialog = ({
                     <span>Cargando imagen...</span>
                   </div>
                 ) : expense.hasReceipt && imageUrl ? (
-                  <img
-                    src={imageUrl}
-                    alt="Factura"
-                    className="max-w-full h-auto max-h-[200px] object-contain rounded-lg"
-                  />
+                  <div className="flex flex-col items-center">
+                    <img
+                      src={imageUrl}
+                      alt="Factura"
+                      className="max-w-full h-auto max-h-[200px] object-contain rounded-lg mb-2"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={async () => {
+                        if (imageUrl) {
+                          try {
+                            const response = await fetch(imageUrl);
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = `${expense.description}.jpg`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            window.URL.revokeObjectURL(url);
+                          } catch (error) {
+                            console.error('Error al descargar la imagen:', error);
+                          }
+                        }
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Descargar Factura
+                    </Button>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center text-gray-500">
                     <ImageOff className="h-12 w-12 mb-2" />

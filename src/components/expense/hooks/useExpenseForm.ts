@@ -3,6 +3,13 @@ import { useExpenses } from "@/context/ExpenseContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+// Add type declaration for window
+declare global {
+  interface Window {
+    capturedImage: string | null;
+  }
+}
+
 export const useExpenseForm = () => {
   const { setExpenses } = useExpenses();
   const { toast } = useToast();
@@ -96,7 +103,7 @@ export const useExpenseForm = () => {
 
     try {
       // Obtener la imagen del contexto global
-      const capturedImage = (window as any).capturedImage;
+      const capturedImage = window.capturedImage;
       console.log('Captured image exists:', !!capturedImage);
 
       const { data: expenseData, error: expenseError } = await supabase
@@ -134,7 +141,24 @@ export const useExpenseForm = () => {
           .order('created_at', { ascending: false });
           
         if (allExpenses) {
-          setExpenses(allExpenses);
+          // Check for receipt existence for each expense
+          const expensesWithReceipt = await Promise.all(allExpenses.map(async expense => {
+            // Check if receipt exists in storage
+            const { data } = await supabase
+              .storage
+              .from('receipts')
+              .list('', {
+                limit: 1,
+                search: `receipt-${expense.id}.jpg`
+              });
+            
+            return {
+              ...expense,
+              hasReceipt: data && data.length > 0
+            };
+          }));
+          
+          setExpenses(expensesWithReceipt);
         }
 
         // Limpiar el formulario
@@ -144,7 +168,7 @@ export const useExpenseForm = () => {
         setDate(new Date().toISOString().split("T")[0]);
         setDdiCode({ part1: "", part2: "", part3: "" });
         // Limpiar la imagen capturada del contexto global
-        (window as any).capturedImage = null;
+        window.capturedImage = null;
 
         toast({
           title: "Gasto agregado",

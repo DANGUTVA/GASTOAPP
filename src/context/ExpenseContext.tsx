@@ -23,7 +23,20 @@ export const ExpenseProvider = ({ children }: { children: React.ReactNode }) => 
         .order('date', { ascending: false });
 
       if (error) throw error;
-      setExpenses(data || []);
+
+      // Convert dates to local timezone
+      const transformedData = data.map(expense => {
+        const localDate = new Date(expense.date);
+        const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const adjustedDate = new Date(localDate.toLocaleString('en-US', { timeZone: userTimeZone }));
+
+        return {
+          ...expense,
+          date: adjustedDate, // Return adjusted date directly
+        };
+      });
+
+      setExpenses(transformedData);
     } catch (error) {
       console.error('Error fetching expenses:', error);
       toast({

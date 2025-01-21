@@ -87,8 +87,8 @@ export const useExpenseForm = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (!description || !costCenter || !amount) {
       toast({
         title: "Error",
@@ -106,24 +106,26 @@ export const useExpenseForm = () => {
       const capturedImage = window.capturedImage;
       console.log('Captured image exists:', !!capturedImage);
 
-      const { data: expenseData, error: expenseError } = await supabase
+      const expenseData = {
+        description,
+        costCenter,
+        amount: parseFloat(amount),
+        date: new Date(date).toISOString(), // Store date in UTC
+        ddiCode: formattedDdiCode,
+      };
+
+      const { data: expenseDataResponse, error: expenseError } = await supabase
         .from('expenses')
-        .insert([{
-          description,
-          costCenter,
-          amount: parseFloat(amount),
-          date,
-          ddiCode: formattedDdiCode,
-        }])
+        .insert([expenseData])
         .select()
         .single();
 
       if (expenseError) throw expenseError;
 
-      if (expenseData) {
+      if (expenseDataResponse) {
         if (capturedImage) {
           try {
-            await uploadImage(capturedImage, expenseData.id);
+            await uploadImage(capturedImage, expenseDataResponse.id);
             console.log('Image uploaded successfully');
           } catch (imageError) {
             console.error('Error uploading image:', imageError);

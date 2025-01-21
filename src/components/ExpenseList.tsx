@@ -3,6 +3,8 @@ import { ExpenseDetailsDialog } from "./expense/ExpenseDetailsDialog";
 import { EditExpenseDialog } from "./expense/EditExpenseDialog";
 import { useExpenseList } from "./expense/hooks/useExpenseList";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import React, { useState } from 'react';
+import { FaEdit, FaTrashAlt, FaEye } from 'react-icons/fa';
 
 export const ExpenseList = () => {
   const {
@@ -24,6 +26,12 @@ export const ExpenseList = () => {
     selectedCostCenter,
     setSelectedCostCenter
   } = useExpenseList();
+
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredExpenses = expenses.filter(expense =>
+    expense.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (isLoading) {
     return <div className="text-center py-4">Cargando gastos...</div>;
@@ -55,12 +63,37 @@ export const ExpenseList = () => {
         </div>
       </div>
       
-      <ExpenseTable
-        expenses={expenses}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onViewDetails={handleViewDetails}
-      />
+      <div className="p-4">
+        <input
+          type="text"
+          placeholder="Buscar gastos..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="mb-4 p-2 border rounded w-full"
+        />
+        <div className="grid grid-cols-1 gap-4">
+          {filteredExpenses.map(expense => (
+            <div key={expense.id} className="border p-4 rounded shadow">
+              <h3 className="font-bold">{expense.description}</h3>
+              <p>Monto: ₡{expense.amount}</p>
+              <p>Fecha: {new Date(expense.date).toLocaleDateString()}</p>
+              <p>Centro de Costo: {expense.costCenter}</p>
+              <p>Código DDI: {expense.ddiCode}</p>
+              <div className="flex justify-between md:flex-row flex-col md:justify-start">
+                <button onClick={() => handleEdit(expense)}>
+                  <FaEdit className="text-blue-500" />
+                </button>
+                <button onClick={() => handleDelete(expense.id)}>
+                  <FaTrashAlt className="text-red-500" />
+                </button>
+                <button onClick={() => handleViewDetails(expense)}>
+                  <FaEye className="text-gray-500" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <EditExpenseDialog
         isOpen={isEditDialogOpen}

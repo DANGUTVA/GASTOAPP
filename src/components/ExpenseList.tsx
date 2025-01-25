@@ -80,10 +80,10 @@ export const ExpenseList = () => {
               <p>Centro de Costo: {expense.costCenter}</p>
               <p>Código DDI: {expense.ddiCode}</p>
               <div className="flex justify-between md:flex-row flex-col md:justify-start">
-                <button onClick={() => handleEdit(expense)}>
+                <button onClick={() => handleEdit(expense)} className="mr-2">
                   <FaEdit className="text-blue-500" />
                 </button>
-                <button onClick={() => handleDelete(expense.id)}>
+                <button onClick={() => handleDelete(expense.id)} className="mr-2">
                   <FaTrashAlt className="text-red-500" />
                 </button>
                 <button onClick={() => handleViewDetails(expense)}>

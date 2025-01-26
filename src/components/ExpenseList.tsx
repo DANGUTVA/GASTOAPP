@@ -5,6 +5,28 @@ import { useExpenseList } from "./expense/hooks/useExpenseList";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import React, { useState } from 'react';
 import { FaEdit, FaTrashAlt, FaEye } from 'react-icons/fa';
+import { Card, CardContent, Typography } from '@mui/material';
+import { styled } from '@mui/system';
+
+const StyledCard = styled(Card)({
+  margin: '16px',
+  transition: '0.3s',
+  '&:hover': {
+    transform: 'scale(1.05)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+  },
+});
+
+const useStyles = {
+  title: {
+    fontWeight: 'bold',
+    color: '#3f51b5',
+  },
+  content: {
+    fontSize: '1rem',
+    color: '#555',
+  },
+};
 
 export const ExpenseList = () => {
   const {
@@ -73,24 +95,26 @@ export const ExpenseList = () => {
         />
         <div className="grid grid-cols-1 gap-4">
           {filteredExpenses.map(expense => (
-            <div key={expense.id} className="border p-4 rounded shadow">
-              <h3 className="font-bold">{expense.description}</h3>
-              <p>Monto: ₡{expense.amount}</p>
-              <p>Fecha: {new Date(expense.date).toLocaleDateString()}</p>
-              <p>Centro de Costo: {expense.costCenter}</p>
-              <p>Código DDI: {expense.ddiCode}</p>
-              <div className="flex gap-2">
-                <button onClick={() => handleEdit(expense)} className="mr-0">
-                  <FaEdit className="text-blue-500" />
-                </button>
-                <button onClick={() => handleDelete(expense.id)} className="mr-0">
-                  <FaTrashAlt className="text-red-500" />
-                </button>
-                <button onClick={() => handleViewDetails(expense)} className="mr-0">
-                  <FaEye className="text-gray-500" />
-                </button>
-              </div>
-            </div>
+            <StyledCard key={expense.id}>
+              <CardContent>
+                <Typography sx={useStyles.title}>{expense.description}</Typography>
+                <Typography sx={useStyles.content}>Monto: ₡{expense.amount}</Typography>
+                <Typography sx={useStyles.content}>Fecha: {new Date(expense.date).toLocaleDateString()}</Typography>
+                <Typography sx={useStyles.content}>Centro de Costo: {expense.costCenter}</Typography>
+                <Typography sx={useStyles.content}>Código DDI: {expense.ddiCode}</Typography>
+                <div className="flex gap-2">
+                  <button onClick={() => handleEdit(expense)} className="mr-0">
+                    <FaEdit className="text-blue-500" />
+                  </button>
+                  <button onClick={() => handleDelete(expense.id)} className="mr-0">
+                    <FaTrashAlt className="text-red-500" />
+                  </button>
+                  <button onClick={() => handleViewDetails(expense)} className="mr-0">
+                    <FaEye className="text-gray-500" />
+                  </button>
+                </div>
+              </CardContent>
+            </StyledCard>
           ))}
         </div>
       </div>

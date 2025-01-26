@@ -13,31 +13,34 @@ interface CostCenterSelectProps {
   costCenter: string;
   costCenters: string[];
   onValueChange: (value: string) => void;
+  className?: string;
 }
 
-export const CostCenterSelect = ({ costCenter, costCenters, onValueChange }: CostCenterSelectProps) => {
+export const CostCenterSelect = ({ costCenter, costCenters, onValueChange, className }: CostCenterSelectProps) => {
   return (
-    <Select 
-      value={costCenter} 
-      onValueChange={onValueChange}
-    >
-      <SelectTrigger>
-        <SelectValue placeholder="Seleccione un centro de costo" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          {costCenters.map((center) => (
-            <SelectItem key={center} value={center}>
-              {center}
+    <div className={className}>
+      <Select 
+        value={costCenter} 
+        onValueChange={onValueChange}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Seleccione un centro de costo" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {costCenters.map((center) => (
+              <SelectItem key={center} value={center}>
+                {center}
+              </SelectItem>
+            ))}
+            <SelectSeparator />
+            <SelectItem value="new" className="text-blue-600">
+              <Plus className="w-4 h-4 mr-2 inline-block" />
+              Agregar nuevo centro de costo
             </SelectItem>
-          ))}
-          <SelectSeparator />
-          <SelectItem value="new" className="text-blue-600">
-            <Plus className="w-4 h-4 mr-2 inline-block" />
-            Agregar nuevo centro de costo
-          </SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </div>
   );
 };

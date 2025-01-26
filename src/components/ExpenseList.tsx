@@ -79,14 +79,14 @@ export const ExpenseList = () => {
               <p>Fecha: {new Date(expense.date).toLocaleDateString()}</p>
               <p>Centro de Costo: {expense.costCenter}</p>
               <p>Código DDI: {expense.ddiCode}</p>
-              <div className="flex justify-between md:flex-row flex-col md:justify-start">
-                <button onClick={() => handleEdit(expense)} className="mr-2">
+              <div className="flex gap-2">
+                <button onClick={() => handleEdit(expense)} className="mr-0">
                   <FaEdit className="text-blue-500" />
                 </button>
-                <button onClick={() => handleDelete(expense.id)} className="mr-2">
+                <button onClick={() => handleDelete(expense.id)} className="mr-0">
                   <FaTrashAlt className="text-red-500" />
                 </button>
-                <button onClick={() => handleViewDetails(expense)}>
+                <button onClick={() => handleViewDetails(expense)} className="mr-0">
                   <FaEye className="text-gray-500" />
                 </button>
               </div>

@@ -24,7 +24,8 @@ export const useExpenseForm = () => {
     part3: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [costCenters] = useState<string[]>(["600-500-140", "600-600-300"]);
+  const [costCenters, setCostCenters] = useState<string[]>(["600-500-140", "600-600-300"]);
+  const [isNewCostCenterModalOpen, setIsNewCostCenterModalOpen] = useState(false);
 
   const handleDDIInputChange = (
     part: 'part1' | 'part2' | 'part3',
@@ -45,7 +46,19 @@ export const useExpenseForm = () => {
   };
 
   const handleCostCenterChange = (value: string) => {
-    setCostCenter(value);
+    if (value === "new") {
+      setIsNewCostCenterModalOpen(true);
+    } else {
+      setCostCenter(value);
+    }
+  };
+
+  const handleNewCostCenterSubmit = (newCostCenter: string) => {
+    if (newCostCenter) {
+      setCostCenters((prev) => [...prev, newCostCenter]);
+      setCostCenter(newCostCenter);
+    }
+    setIsNewCostCenterModalOpen(false);
   };
 
   const uploadImage = async (imageData: string, expenseId: string): Promise<boolean> => {
@@ -193,6 +206,7 @@ export const useExpenseForm = () => {
     description,
     setDescription,
     costCenter,
+    setCostCenter,
     amount,
     setAmount,
     date,
@@ -200,8 +214,12 @@ export const useExpenseForm = () => {
     ddiCode,
     isSubmitting,
     costCenters,
+    setCostCenters,
+    isNewCostCenterModalOpen,
+    setIsNewCostCenterModalOpen,
     handleDDIInputChange,
     handleCostCenterChange,
+    handleNewCostCenterSubmit,
     handleSubmit
   };
 };

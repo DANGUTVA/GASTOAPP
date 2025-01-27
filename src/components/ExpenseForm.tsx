@@ -54,7 +54,7 @@ export const ExpenseForm = () => {
             placeholder="Descripción"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full"
+            className="block w-full p-2 pl-10 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
@@ -73,12 +73,15 @@ export const ExpenseForm = () => {
                   value={newCostCenter} 
                   onChange={(e) => setNewCostCenter(e.target.value)} 
                   placeholder="Ingrese nuevo centro de costo" 
-                  className="input-field"
-                  style={{ marginBottom: '1rem', color: '#999', fontSize: '16px', width: '100%', height: '40px' }}
+                  className="block w-full p-2 pl-10 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <div className="button-group" style={{ gap: '1rem' }}>
-                  <button onClick={handleNewCostCenterSubmit} className="btn-accept" style={{ padding: '0.5rem 1rem' }}>Aceptar</button>
-                  <button onClick={() => setIsNewCostCenterModalOpen(false)} className="btn-cancel" style={{ padding: '0.5rem 1rem' }}>Cancelar</button>
+                  <button type="button" onClick={handleNewCostCenterSubmit} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Aceptar
+                  </button>
+                  <button type="button" onClick={() => setIsNewCostCenterModalOpen(false)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    Cancelar
+                  </button>
                 </div>
               </Card>
             </div>
@@ -91,7 +94,7 @@ export const ExpenseForm = () => {
             placeholder="Monto"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full"
+            className="block w-full p-2 pl-10 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
@@ -105,6 +108,7 @@ export const ExpenseForm = () => {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            className="block w-full p-2 pl-10 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 

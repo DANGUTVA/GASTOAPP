@@ -1,10 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { DDICodeInput } from "./expense/DDICodeInput";
-import { CostCenterSelect } from "./expense/CostCenterSelect";
 import { ExpenseFormActions } from "./ExpenseFormActions";
 import { useExpenseForm } from "./expense/hooks/useExpenseForm";
 import { useState } from "react";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 export const ExpenseForm = () => {
   const {
@@ -21,7 +21,6 @@ export const ExpenseForm = () => {
     ddiCode,
     isSubmitting,
     handleDDIInputChange,
-    handleCostCenterChange,
     handleSubmit
   } = useExpenseForm();
 
@@ -59,12 +58,25 @@ export const ExpenseForm = () => {
         </div>
 
         <div>
-          <CostCenterSelect 
-            costCenter={costCenter}
-            costCenters={costCenters}
+          <label htmlFor="cost-center" className="block text-sm font-medium text-gray-700">Centro de Costos</label>
+          <Select
+            value={costCenter}
             onValueChange={onCostCenterChange}
-            className="w-full"
-          />
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecciona un centro de costos" />
+            </SelectTrigger>
+            <SelectContent>
+              {costCenters.map((center) => (
+                <SelectItem key={center} value={center}>
+                  {center}
+                </SelectItem>
+              ))}
+              <SelectItem key="new" value="new">
+               +Agregar nuevo centro de costos
+              </SelectItem>
+            </SelectContent>
+          </Select>
           {isNewCostCenterModalOpen && (
             <div className="modal-container">
               <Card className="p-4">
@@ -72,7 +84,7 @@ export const ExpenseForm = () => {
                   type="text" 
                   value={newCostCenter} 
                   onChange={(e) => setNewCostCenter(e.target.value)} 
-                  placeholder="Ingrese nuevo centro de costo" 
+                  placeholder="Ingrese nuevo centro de costos" 
                   className="block w-full p-2 pl-10 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <div className="button-group" style={{ gap: '1rem' }}>

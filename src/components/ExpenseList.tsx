@@ -69,7 +69,7 @@ export const ExpenseList = () => {
             onValueChange={setSelectedCostCenter}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Filtrar por centro de costo" />
+              <SelectValue placeholder="Filtrar por centro de costos" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
@@ -100,7 +100,7 @@ export const ExpenseList = () => {
                 <Typography sx={useStyles.title}>{expense.description}</Typography>
                 <Typography sx={useStyles.content}>Monto: ₡{expense.amount}</Typography>
                 <Typography sx={useStyles.content}>Fecha: {new Date(expense.date).toLocaleDateString()}</Typography>
-                <Typography sx={useStyles.content}>Centro de Costo: {expense.costCenter}</Typography>
+                <Typography sx={useStyles.content}>Centro de Costos: {expense.costCenter}</Typography>
                 <Typography sx={useStyles.content}>Código DDI: {expense.ddiCode}</Typography>
                 <div className="flex gap-2">
                   <button onClick={() => handleEdit(expense)} className="mr-0">

@@ -13,11 +13,8 @@ export const ExpenseForm = () => {
     costCenter,
     setCostCenter,
     costCenters,
-    setCostCenters,
     amount,
     setAmount,
-    date,
-    setDate,
     ddiCode,
     isSubmitting,
     handleDDIInputChange,
@@ -37,7 +34,6 @@ export const ExpenseForm = () => {
 
   const handleNewCostCenterSubmit = () => {
     if (newCostCenter) {
-      setCostCenters((prev) => [...prev, newCostCenter]);
       setCostCenter(newCostCenter);
       setNewCostCenter("");
     }
@@ -48,12 +44,13 @@ export const ExpenseForm = () => {
     <Card className="p-4 mb-6 md:mb-8">
       <h2 className="text-lg font-semibold mb-4">Agregar Gasto</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+        <div className="space-y-4">
           <Input
             placeholder="Descripción"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="block w-full p-2 pl-10 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+            aria-label="Descripción"
           />
         </div>
 
@@ -62,32 +59,34 @@ export const ExpenseForm = () => {
           <Select
             value={costCenter}
             onValueChange={onCostCenterChange}
+            aria-label="Centro de Costos"
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecciona un centro de costos" />
             </SelectTrigger>
             <SelectContent>
               {costCenters.map((center) => (
-                <SelectItem key={center} value={center}>
+                <SelectItem key={center} value={center} aria-label={center}>
                   {center}
                 </SelectItem>
               ))}
-              <SelectItem key="new" value="new">
+              <SelectItem key="new" value="new" aria-label="Agregar nuevo centro de costos">
                +Agregar nuevo centro de costos
               </SelectItem>
             </SelectContent>
           </Select>
           {isNewCostCenterModalOpen && (
-            <div className="modal-container">
-              <Card className="p-4">
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+              <Card className="p-6 w-80 rounded-lg shadow-lg">
                 <input 
                   type="text" 
                   value={newCostCenter} 
                   onChange={(e) => setNewCostCenter(e.target.value)} 
                   placeholder="Ingrese nuevo centro de costos" 
-                  className="block w-full p-2 pl-10 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full p-2 mb-4 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  aria-label="Nuevo centro de costos"
                 />
-                <div className="button-group" style={{ gap: '1rem' }}>
+                <div className="flex justify-end space-x-4">
                   <button type="button" onClick={handleNewCostCenterSubmit} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Aceptar
                   </button>
@@ -107,22 +106,17 @@ export const ExpenseForm = () => {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             className="block w-full p-2 pl-10 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+            aria-label="Monto"
+            min="0"
+            step="0.01"
           />
         </div>
 
         <DDICodeInput 
           ddiCode={ddiCode}
           onDDIChange={handleDDIInputChange}
+          aria-label="Código DDI"
         />
-
-        <div>
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="block w-full p-2 pl-10 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
 
         <ExpenseFormActions onSubmit={handleSubmit} />
       </form>

@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { addMonths, format } from "date-fns";
 import { es } from "date-fns/locale";
-import { useExpenses } from "@/context/ExpenseContext";
+import { useExpenses } from "@/context/useExpenses";
 
 export const useMonthlyBudget = () => {
   const { currentDate, setCurrentDate } = useExpenses();

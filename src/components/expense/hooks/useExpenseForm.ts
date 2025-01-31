@@ -1,200 +1,126 @@
 import { useState } from "react";
-import { useExpenses } from "@/context/ExpenseContext";
+import { useExpenses } from "@/context/useExpenses";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { NewExpense } from "@/types/expense";
 
 // Add type declaration for window
 declare global {
+  interface FileSystemFileHandle {
+    getFile(): Promise<File>;
+  }
+  
   interface Window {
-    capturedImage: string | null;
+    showOpenFilePicker(): Promise<FileSystemFileHandle[]>;
   }
 }
 
 export const useExpenseForm = () => {
-  const { setExpenses } = useExpenses();
-  const { toast } = useToast();
-  
   const [description, setDescription] = useState("");
-  const [costCenter, setCostCenter] = useState("");
   const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [ddiCode, setDdiCode] = useState({
+  const [costCenter, setCostCenter] = useState("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { addExpense, costCenters } = useExpenses();
+  const { toast } = useToast();
+  const [ddiCode, setDDICode] = useState({
     part1: "",
     part2: "",
     part3: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [costCenters, setCostCenters] = useState<string[]>(["600-500-140", "600-600-300"]);
-  const [isNewCostCenterModalOpen, setIsNewCostCenterModalOpen] = useState(false);
 
   const handleDDIInputChange = (
     part: 'part1' | 'part2' | 'part3',
-    value: string,
-    maxLength: number,
-    nextRef?: React.RefObject<HTMLInputElement>
+    value: string
   ) => {
-    const numericValue = value.replace(/\D/g, '');
-    
-    setDdiCode(prev => ({
+    const maxLength = part === 'part2' ? 4 : 3;
+    const sanitizedValue = value.replace(/\D/g, '').slice(0, maxLength);
+
+    setDDICode(prev => ({
       ...prev,
-      [part]: numericValue
+      [part]: sanitizedValue
     }));
 
-    if (numericValue.length >= maxLength && nextRef?.current) {
-      nextRef.current.focus();
+    // Auto-focus next input if current is filled
+    if (sanitizedValue.length === maxLength) {
+      const nextPart = {
+        part1: 'part2',
+        part2: 'part3',
+        part3: null
+      }[part];
+
+      if (nextPart) {
+        const nextInput = document.querySelector(`input[name=ddi-${nextPart}]`);
+        if (nextInput) {
+          (nextInput as HTMLInputElement).focus();
+        }
+      }
     }
   };
 
   const handleCostCenterChange = (value: string) => {
-    if (value === "new") {
-      setIsNewCostCenterModalOpen(true);
-    } else {
-      setCostCenter(value);
-    }
-  };
-
-  const handleNewCostCenterSubmit = (newCostCenter: string) => {
-    if (newCostCenter) {
-      setCostCenters((prev) => [...prev, newCostCenter]);
-      setCostCenter(newCostCenter);
-    }
-    setIsNewCostCenterModalOpen(false);
+    setCostCenter(value);
   };
 
   const uploadImage = async (imageData: string, expenseId: string): Promise<boolean> => {
     try {
-      console.log('Starting image upload for expense:', expenseId);
-      
-      // Convertir el base64 a un Blob
-      const base64Data = imageData.split(',')[1];
-      const byteCharacters = atob(base64Data);
-      const byteNumbers = new Array(byteCharacters.length);
-      
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'image/jpeg' });
-      const fileName = `receipt-${expenseId}.jpg`;
-
-      console.log('Uploading file:', fileName);
-
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('receipts')
-        .upload(fileName, blob, {
+        .upload(`${expenseId}.jpg`, imageData, {
           contentType: 'image/jpeg',
           upsert: true
         });
 
-      if (uploadError) {
-        console.error('Error uploading image:', uploadError);
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
-      console.log('Upload successful:', data);
       return true;
     } catch (error) {
-      console.error('Error in uploadImage:', error);
-      throw error;
+      console.error('Error uploading image:', error);
+      return false;
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!description || !costCenter || !amount) {
-      toast({
-        title: "Error",
-        description: "Por favor complete todos los campos requeridos",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
-    const formattedDdiCode = `DDI-${ddiCode.part1}-${ddiCode.part2}-${ddiCode.part3}`;
 
     try {
-      // Obtener la imagen del contexto global
-      const capturedImage = window.capturedImage;
-      console.log('Captured image exists:', !!capturedImage);
+      if (!amount || !description || !costCenter) {
+        toast({
+          title: "Error",
+          description: "Por favor completa todos los campos requeridos",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      const expenseData = {
-        description,
+      const newExpense: NewExpense = {
+        amount: Number(amount),
         costCenter,
-        amount: parseFloat(amount),
-        date: new Date(date).toISOString(), // Store date in UTC
-        ddiCode: formattedDdiCode,
+        date: new Date(),
+        ddiCode: ddiCode.part1 + ddiCode.part2 + ddiCode.part3,
+        description,
+        hasReceipt: false,
       };
 
-      const { data: expenseDataResponse, error: expenseError } = await supabase
-        .from('expenses')
-        .insert([expenseData])
-        .select()
-        .single();
+      await addExpense(newExpense);
 
-      if (expenseError) throw expenseError;
+      // Reset form
+      setDescription("");
+      setAmount("");
+      setCostCenter("");
+      setDDICode({ part1: "", part2: "", part3: "" });
+      setSelectedImage(null);
 
-      if (expenseDataResponse) {
-        if (capturedImage) {
-          try {
-            await uploadImage(capturedImage, expenseDataResponse.id);
-            console.log('Image uploaded successfully');
-          } catch (imageError) {
-            console.error('Error uploading image:', imageError);
-            toast({
-              title: "Advertencia",
-              description: "El gasto se guardó pero hubo un error al subir la imagen",
-              variant: "destructive",
-            });
-          }
-        }
-
-        const { data: allExpenses } = await supabase
-          .from('expenses')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (allExpenses) {
-          // Check for receipt existence for each expense
-          const expensesWithReceipt = await Promise.all(allExpenses.map(async expense => {
-            // Check if receipt exists in storage
-            const { data } = await supabase
-              .storage
-              .from('receipts')
-              .list('', {
-                limit: 1,
-                search: `receipt-${expense.id}.jpg`
-              });
-            
-            return {
-              ...expense,
-              hasReceipt: data && data.length > 0
-            };
-          }));
-          
-          setExpenses(expensesWithReceipt);
-        }
-
-        // Limpiar el formulario
-        setDescription("");
-        setCostCenter("");
-        setAmount("");
-        setDate(new Date().toISOString().split("T")[0]);
-        setDdiCode({ part1: "", part2: "", part3: "" });
-        // Limpiar la imagen capturada del contexto global
-        window.capturedImage = null;
-
-        toast({
-          title: "Gasto agregado",
-          description: "El gasto ha sido guardado exitosamente",
-        });
-      }
+      toast({
+        title: "¡Éxito!",
+        description: "Gasto agregado correctamente",
+      });
     } catch (error) {
-      console.error('Error al guardar el gasto:', error);
+      console.error('Error submitting expense:', error);
       toast({
         title: "Error",
-        description: "Hubo un error al guardar el gasto",
+        description: "No se pudo agregar el gasto",
         variant: "destructive",
       });
     } finally {
@@ -205,21 +131,17 @@ export const useExpenseForm = () => {
   return {
     description,
     setDescription,
-    costCenter,
-    setCostCenter,
     amount,
     setAmount,
-    date,
-    setDate,
+    costCenter,
+    setCostCenter,
+    selectedImage,
+    setSelectedImage,
     ddiCode,
     isSubmitting,
     costCenters,
-    setCostCenters,
-    isNewCostCenterModalOpen,
-    setIsNewCostCenterModalOpen,
     handleDDIInputChange,
     handleCostCenterChange,
-    handleNewCostCenterSubmit,
-    handleSubmit
+    handleSubmit,
   };
 };

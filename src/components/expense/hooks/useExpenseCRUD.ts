@@ -1,8 +1,25 @@
 import { useState, useEffect } from "react";
-import { useExpenses } from "@/context/ExpenseContext";
+import { useExpenses } from "@/context/useExpenses";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Expense } from "@/types/expense";
+import { Expense, DBExpense } from "@/types/expense";
+
+// Convert database expense to application expense
+const convertToExpense = (dbExpense: DBExpense): Expense => ({
+  ...dbExpense,
+  date: new Date(dbExpense.date),
+  description: dbExpense.description || "",
+  ddiCode: dbExpense.ddiCode || "",
+  hasReceipt: false // This will be updated when checking receipt existence
+});
+
+// Convert application expense to database expense
+const convertToDBExpense = (expense: Expense): DBExpense => ({
+  ...expense,
+  date: expense.date.toISOString(),
+  description: expense.description || null,
+  ddiCode: expense.ddiCode || null
+});
 
 export const useExpenseCRUD = () => {
   const { expenses, setExpenses, deleteExpense, editExpense, currentDate } = useExpenses();
@@ -27,25 +44,25 @@ export const useExpenseCRUD = () => {
 
         if (error) throw error;
 
-        // Verificar la existencia de recibos para cada gasto
-        const expensesWithReceiptStatus = await Promise.all((data as Expense[]).map(async (expense) => {
-          try {
-            const { data: fileData, error: fileError } = await supabase
-              .storage
-              .from('receipts')
-              .download(`receipt-${expense.id}.jpg`);
+        // Convert and check receipts
+        const expensesWithReceiptStatus = await Promise.all(
+          (data as DBExpense[]).map(async (dbExpense) => {
+            const expense = convertToExpense(dbExpense);
+            try {
+              const { data: fileData, error: fileError } = await supabase
+                .storage
+                .from('receipts')
+                .download(`receipt-${expense.id}.jpg`);
 
-            return {
-              ...expense,
-              hasReceipt: !fileError && fileData !== null
-            };
-          } catch {
-            return {
-              ...expense,
-              hasReceipt: false
-            };
-          }
-        }));
+              return {
+                ...expense,
+                hasReceipt: !fileError && fileData !== null
+              };
+            } catch {
+              return expense;
+            }
+          })
+        );
 
         setExpenses(expensesWithReceiptStatus);
       } catch (error) {
@@ -101,9 +118,10 @@ export const useExpenseCRUD = () => {
 
   const handleSaveEdit = async (updatedExpense: Expense) => {
     try {
+      const dbExpense = convertToDBExpense(updatedExpense);
       const { error } = await supabase
         .from('expenses')
-        .update(updatedExpense)
+        .update(dbExpense)
         .eq('id', updatedExpense.id);
 
       if (error) throw error;

@@ -1,117 +1,164 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { Expense, ExpenseContextType } from "../types/expense";
-import { useToast } from "@/hooks/use-toast";
+import { useContext, useState, useEffect, useCallback } from "react";
+import { Expense, ExpenseContextType, NewExpense, DBExpense } from "@/types/expense";
 import { supabase } from "@/integrations/supabase/client";
-
-const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined);
+import { useToast } from "@/hooks/use-toast";
+import { 
+  fetchExpensesFromDB, 
+  fetchCostCentersFromDB, 
+  convertToDBExpense,
+  convertToExpense 
+} from "./expenseUtils";
+import { ExpenseContext } from "./expenseContextConstants";
 
 export const ExpenseProvider = ({ children }: { children: React.ReactNode }) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [costCenters, setCostCenters] = useState<string[]>([]);
   const { toast } = useToast();
 
-  const fetchExpenses = async (date: Date) => {
+  const fetchExpenses = useCallback(async (date: Date) => {
     try {
-      const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-      const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      
-      const { data, error } = await supabase
-        .from('expenses')
-        .select('*')
-        .gte('date', startOfMonth.toISOString())
-        .lte('date', endOfMonth.toISOString())
-        .order('date', { ascending: false });
-
-      if (error) throw error;
-
-      // Convert dates to local timezone
-      const transformedData = data.map(expense => {
-        const localDate = new Date(expense.date);
-        const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const adjustedDate = new Date(localDate.toLocaleString('en-US', { timeZone: userTimeZone }));
-
-        return {
-          ...expense,
-          date: adjustedDate, // Return adjusted date directly
-        };
-      });
-
-      setExpenses(transformedData);
+      const data = await fetchExpensesFromDB(date);
+      setExpenses(data);
     } catch (error) {
       console.error('Error fetching expenses:', error);
       toast({
         title: "Error",
-        description: "No se pudieron cargar los gastos.",
-        variant: "destructive"
+        description: "No se pudieron cargar los gastos",
+        variant: "destructive",
       });
+    }
+  }, [toast]);
+
+  const fetchCostCenters = useCallback(async () => {
+    try {
+      const centers = await fetchCostCentersFromDB();
+      setCostCenters(centers);
+    } catch (error) {
+      console.error('Error fetching cost centers:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      await fetchExpenses(currentDate);
+      await fetchCostCenters();
+    };
+    loadInitialData();
+  }, [currentDate, fetchExpenses, fetchCostCenters]);
+
+  const addCostCenter = (newCostCenter: string) => {
+    if (!costCenters.includes(newCostCenter)) {
+      setCostCenters(prev => [...prev, newCostCenter]);
     }
   };
 
-  useEffect(() => {
-    fetchExpenses(currentDate);
-  }, [currentDate]);
-
-  const addExpense = async (expense: Omit<Expense, "id" | "created_at">) => {
+  const addExpense = async (expense: NewExpense) => {
     try {
+      const dbExpense: DBExpense = {
+        ...expense,
+        id: crypto.randomUUID(),
+        hasReceipt: false,
+        date: new Date(expense.date).toISOString().split('T')[0],
+        created_at: new Date().toISOString()
+      };
+
       const { data, error } = await supabase
         .from('expenses')
-        .insert([expense])
+        .insert([dbExpense])
         .select()
         .single();
 
       if (error) throw error;
 
-      const newExpense = data as Expense;
+      const newExpense = convertToExpense(data as DBExpense);
       setExpenses(prev => [...prev, newExpense]);
-
-      // Actualizar currentDate si es necesario
-      setCurrentDate(new Date(newExpense.date)); // Asumiendo que expense.date es la fecha del gasto
-
-      // Llamar a fetchExpenses para obtener los gastos del mes correcto
-      fetchExpenses(new Date(newExpense.date));
-
+      
       toast({
-        title: "Gasto agregado",
-        description: "El gasto ha sido agregado exitosamente."
+        title: "Éxito",
+        description: "Gasto agregado correctamente",
       });
     } catch (error) {
       console.error('Error adding expense:', error);
       toast({
         title: "Error",
-        description: "No se pudo agregar el gasto.",
-        variant: "destructive"
+        description: "No se pudo agregar el gasto",
+        variant: "destructive",
       });
     }
   };
 
-  const deleteExpense = (id: string) => {
-    setExpenses(prev => prev.filter(e => e.id !== id));
+  const deleteExpense = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('expenses')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setExpenses(prev => prev.filter(e => e.id !== id));
+      toast({
+        title: "Éxito",
+        description: "Gasto eliminado correctamente",
+      });
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el gasto",
+        variant: "destructive",
+      });
+    }
   };
 
-  const editExpense = (expense: Expense) => {
-    setExpenses(prev => prev.map(e => e.id === expense.id ? expense : e));
+  const editExpense = async (expense: Expense) => {
+    try {
+      const dbExpense: DBExpense = {
+        ...expense,
+        date: expense.date.toISOString().split('T')[0]
+      };
+
+      const { error } = await supabase
+        .from('expenses')
+        .update(dbExpense)
+        .eq('id', expense.id);
+
+      if (error) throw error;
+
+      setExpenses(prev => prev.map(e => e.id === expense.id ? expense : e));
+      toast({
+        title: "Éxito",
+        description: "Gasto actualizado correctamente",
+      });
+    } catch (error) {
+      console.error('Error updating expense:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el gasto",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const value: ExpenseContextType = {
+    expenses,
+    setExpenses,
+    addExpense,
+    deleteExpense,
+    editExpense,
+    currentDate,
+    setCurrentDate,
+    fetchExpenses,
+    costCenters,
+    addCostCenter,
   };
 
   return (
-    <ExpenseContext.Provider value={{ 
-      expenses, 
-      setExpenses, 
-      addExpense, 
-      deleteExpense, 
-      editExpense,
-      currentDate,
-      setCurrentDate,
-      fetchExpenses
-    }}>
+    <ExpenseContext.Provider value={value}>
       {children}
     </ExpenseContext.Provider>
   );
 };
 
-export const useExpenses = () => {
-  const context = useContext(ExpenseContext);
-  if (context === undefined) {
-    throw new Error("useExpenses must be used within an ExpenseProvider");
-  }
-  return context;
-};
+// Eliminado useExpenses para mejorar Fast Refresh

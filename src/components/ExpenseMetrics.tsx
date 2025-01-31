@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { DollarSign, ArrowDown, ArrowUp } from "lucide-react";
-import { useExpenses } from "@/context/ExpenseContext";
+import { useExpenses } from "@/context/useExpenses";
 import { useMonthlyBudget } from "./expense/hooks/useMonthlyBudget";
 import { Button } from "./ui/button";
 import { SetBudgetDialog } from "./expense/SetBudgetDialog";

@@ -37,7 +37,8 @@ export const EditExpenseDialog = ({
 
   const handleSave = () => {
     if (editedExpense) {
-      onSave(editedExpense);
+      const updatedExpense = { ...editedExpense, date: editedExpense.date instanceof Date ? editedExpense.date : new Date(editedExpense.date) };
+      onSave(updatedExpense);
       onClose();
     }
   };
@@ -46,10 +47,11 @@ export const EditExpenseDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]" aria-describedby="edit-expense-dialog-description">
         <DialogHeader>
           <DialogTitle>Editar Gasto</DialogTitle>
         </DialogHeader>
+        <p id="edit-expense-dialog-description" className="sr-only">Formulario para editar un gasto.</p>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="description">Descripción</Label>
@@ -108,10 +110,10 @@ export const EditExpenseDialog = ({
             <Input
               id="date"
               type="date"
-              value={editedExpense.date.split('T')[0]}
+              value={editedExpense.date instanceof Date ? editedExpense.date.toISOString().split('T')[0] : ''}
               onChange={(e) =>
                 setEditedExpense(prev =>
-                  prev ? { ...prev, date: e.target.value } : null
+                  prev ? { ...prev, date: new Date(e.target.value) } : prev
                 )
               }
             />

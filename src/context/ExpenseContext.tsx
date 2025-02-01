@@ -58,7 +58,6 @@ export const ExpenseProvider = ({ children }: { children: React.ReactNode }) => 
       const dbExpense: DBExpense = {
         ...expense,
         id: crypto.randomUUID(),
-        hasReceipt: false,
         date: new Date(expense.date).toISOString().split('T')[0],
         created_at: new Date().toISOString()
       };
@@ -114,15 +113,17 @@ export const ExpenseProvider = ({ children }: { children: React.ReactNode }) => 
 
   const editExpense = async (expense: Expense) => {
     try {
-      const dbExpense: DBExpense = {
+      const dbExpense = {
         ...expense,
         date: expense.date.toISOString().split('T')[0]
       };
-
-      const { error } = await supabase
+      const { hasReceipt, created_at, ...payload } = dbExpense;
+      const { data, error } = await supabase
         .from('expenses')
-        .update(dbExpense)
-        .eq('id', expense.id);
+        .update(payload)
+        .eq('id', expense.id)
+        .select()
+        .single();
 
       if (error) throw error;
 

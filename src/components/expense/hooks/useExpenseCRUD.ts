@@ -15,9 +15,11 @@ const convertToExpense = (dbExpense: DBExpense): Expense => ({
 
 // Convert application expense to database expense
 const convertToDBExpense = (expense: Expense): DBExpense => ({
-  ...expense,
-  date: expense.date.toISOString(),
+  id: expense.id,
   description: expense.description || null,
+  amount: expense.amount,
+  costCenter: expense.costCenter,
+  date: expense.date.toISOString(),
   ddiCode: expense.ddiCode || null
 });
 
@@ -117,11 +119,21 @@ export const useExpenseCRUD = () => {
   };
 
   const handleSaveEdit = async (updatedExpense: Expense) => {
+    if (isNaN(updatedExpense.date.getTime())) {
+      toast({
+        title: "Error",
+        description: "Fecha no válida",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const dbExpense = convertToDBExpense(updatedExpense);
+      const { id, created_at, hasReceipt, ...payload } = dbExpense;
       const { error } = await supabase
         .from('expenses')
-        .update(dbExpense)
+        .update(payload)
         .eq('id', updatedExpense.id);
 
       if (error) throw error;

@@ -6,7 +6,6 @@ export interface DBExpense {
   costCenter: string;
   date: string;
   ddiCode: string | null;
-  hasReceipt: boolean;
   created_at?: string;
 }
 

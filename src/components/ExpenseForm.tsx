@@ -86,7 +86,7 @@ export const ExpenseForm = () => {
                   className="block w-full p-2 mb-4 text-sm text-gray-700 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                   aria-label="Nuevo centro de costos"
                 />
-                <div className="flex justify-end space-x-4">
+                <div className="flex justify-center space-x-4">
                   <button type="button" onClick={handleNewCostCenterSubmit} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Aceptar
                   </button>

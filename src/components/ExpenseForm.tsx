@@ -19,6 +19,7 @@ export const ExpenseForm = () => {
     costCenters,
     handleDDIInputChange,
     handleCostCenterChange,
+    handleAddNewCostCenter,
     handleSubmit
   } = useExpenseForm();
 
@@ -40,6 +41,7 @@ export const ExpenseForm = () => {
             costCenter={costCenter}
             costCenters={costCenters}
             onValueChange={handleCostCenterChange}
+            onAddNewCostCenter={handleAddNewCostCenter}
             className="w-full"
           />
         </div>

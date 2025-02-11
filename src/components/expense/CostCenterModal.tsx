@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogContent,
   DialogClose,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
@@ -21,14 +22,14 @@ const CostCenterModal: React.FC<CostCenterModalProps> = ({ isOpen, onClose, onSa
       onSave(newCostCenter.trim());
       setNewCostCenter('');
     }
-    onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[400px] p-0 gap-0 bg-white rounded-lg overflow-hidden" aria-describedby="">
+      <DialogContent className="sm:max-w-[400px] p-0 gap-0 bg-white rounded-lg overflow-hidden">
+        <DialogTitle className="sr-only">Agregar nuevo centro de costos</DialogTitle>
         <div className="relative">
-          <DialogClose className="relative right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+          <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogClose>

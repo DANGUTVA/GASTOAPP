@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -21,13 +21,9 @@ interface CostCenterSelectProps {
 
 export const CostCenterSelect = ({ costCenter, costCenters, onValueChange, onAddNewCostCenter, className }: CostCenterSelectProps) => {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [localCostCenters, setLocalCostCenters] = useState<string[]>(costCenters);
-
-  useEffect(() => {
-    setLocalCostCenters(costCenters);
-  }, [costCenters]);
 
   const handleValueChange = (value: string) => {
+    console.log('Value changed to:', value);
     if (value === 'new') {
       setModalOpen(true);
     } else {
@@ -36,14 +32,20 @@ export const CostCenterSelect = ({ costCenter, costCenters, onValueChange, onAdd
   };
 
   const handleSaveNewCostCenter = (newCostCenter: string) => {
+    console.log('Saving new cost center:', newCostCenter);
     if (onAddNewCostCenter) {
       onAddNewCostCenter(newCostCenter);
-    } else {
-      setLocalCostCenters((prev) => [...prev, newCostCenter]);
+      onValueChange(newCostCenter);
     }
-    onValueChange(newCostCenter);
     setModalOpen(false);
   };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  console.log('Current costCenter:', costCenter);
+  console.log('Available costCenters:', costCenters);
 
   return (
     <div className={className}>
@@ -53,7 +55,7 @@ export const CostCenterSelect = ({ costCenter, costCenters, onValueChange, onAdd
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {localCostCenters.map((center) => (
+            {costCenters.map((center) => (
               <SelectItem key={center} value={center}>
                 {center}
               </SelectItem>
@@ -68,7 +70,7 @@ export const CostCenterSelect = ({ costCenter, costCenters, onValueChange, onAdd
       </Select>
       <CostCenterModal
         isOpen={isModalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleCloseModal}
         onSave={handleSaveNewCostCenter}
       />
     </div>

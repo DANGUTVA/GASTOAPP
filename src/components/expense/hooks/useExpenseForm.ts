@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useExpenses } from "@/context/ExpenseContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +11,7 @@ declare global {
 }
 
 export const useExpenseForm = () => {
-  const { setExpenses, fetchExpenses, currentDate } = useExpenses();
+  const { expenses, setExpenses, fetchExpenses, currentDate } = useExpenses();
   const { toast } = useToast();
   
   const [description, setDescription] = useState("");
@@ -29,7 +29,24 @@ export const useExpenseForm = () => {
     part3: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [costCenters] = useState<string[]>(["600-500-140", "600-600-300"]);
+  
+  // Initialize costCenters with default values
+  const defaultCostCenters = ["600-500-140", "600-600-300"];
+  const [costCenters, setCostCenters] = useState<string[]>(defaultCostCenters);
+
+  // Update costCenters when expenses change
+  useEffect(() => {
+    if (expenses && expenses.length > 0) {
+      const uniqueCostCenters = new Set([
+        ...defaultCostCenters,
+        ...expenses.map(expense => expense.costCenter).filter(Boolean)
+      ]);
+      const updatedCostCenters = Array.from(uniqueCostCenters);
+      if (JSON.stringify(updatedCostCenters) !== JSON.stringify(costCenters)) {
+        setCostCenters(updatedCostCenters);
+      }
+    }
+  }, [expenses]);
 
   const handleDDIInputChange = (
     part: 'part1' | 'part2' | 'part3',
@@ -50,7 +67,18 @@ export const useExpenseForm = () => {
   };
 
   const handleCostCenterChange = (value: string) => {
+    console.log('Changing cost center to:', value);
     setCostCenter(value);
+  };
+
+  const handleAddNewCostCenter = (newCostCenter: string) => {
+    console.log('Adding new cost center:', newCostCenter);
+    setCostCenters(prevCenters => {
+      const newCenters = [...prevCenters, newCostCenter];
+      console.log('Updated centers:', newCenters);
+      return newCenters;
+    });
+    handleCostCenterChange(newCostCenter);
   };
 
   const uploadImage = async (imageData: string, expenseId: string): Promise<boolean> => {
@@ -181,6 +209,7 @@ export const useExpenseForm = () => {
     costCenters,
     handleDDIInputChange,
     handleCostCenterChange,
+    handleAddNewCostCenter,
     handleSubmit
   };
 };

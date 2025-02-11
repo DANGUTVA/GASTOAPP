@@ -32,7 +32,8 @@ export const ExpenseProvider = ({ children }: { children: React.ReactNode }) => 
 
         return {
           ...expense,
-          date: adjustedDate, // Return adjusted date directly
+          date: adjustedDate.toISOString(),
+          hasReceipt: false
         };
       });
 

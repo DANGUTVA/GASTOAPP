@@ -11,7 +11,7 @@ declare global {
 }
 
 export const useExpenseForm = () => {
-  const { setExpenses } = useExpenses();
+  const { setExpenses, fetchExpenses, currentDate } = useExpenses();
   const { toast } = useToast();
   
   const [description, setDescription] = useState("");
@@ -142,39 +142,13 @@ export const useExpenseForm = () => {
           }
         }
 
-        const { data: allExpenses } = await supabase
-          .from('expenses')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (allExpenses) {
-          // Check for receipt existence for each expense
-          const expensesWithReceipt = await Promise.all(allExpenses.map(async expense => {
-            // Check if receipt exists in storage
-            const { data } = await supabase
-              .storage
-              .from('receipts')
-              .list('', {
-                limit: 1,
-                search: `receipt-${expense.id}.jpg`
-              });
-            
-            return {
-              ...expense,
-              hasReceipt: data && data.length > 0
-            };
-          }));
-          
-          setExpenses(expensesWithReceipt);
-        }
+        await fetchExpenses(currentDate);
 
-        // Limpiar el formulario
         setDescription("");
         setCostCenter("");
         setAmount("");
         setDate(getLocalISODate());
         setDdiCode({ part1: "", part2: "", part3: "" });
-        // Limpiar la imagen capturada del contexto global
         window.capturedImage = null;
 
         toast({

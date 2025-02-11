@@ -22,8 +22,8 @@ export const ExpenseTable = ({ expenses, onEdit, onDelete, onViewDetails }: Expe
               <th className="p-2 text-left">#</th>
               <th className="p-2 text-left">FECHA</th>
               <th className="p-2 text-left">DESCRIPCIÓN</th>
-              <th className="p-2 text-left">CENTRO DE COSTO</th>
-              <th className="p-2 text-left">CÓDIGO DDI</th>
+              <th className="p-2 text-left">CENTRO DE COSTOS</th>
+              <th className="p-2 text-left">DESPACHO</th>
               <th className="p-2 text-right">MONTO</th>
               <th className="p-2 text-center">ACCIONES</th>
             </tr>
@@ -80,8 +80,8 @@ export const ExpenseTable = ({ expenses, onEdit, onDelete, onViewDetails }: Expe
         {expenses.map((expense, index) => (
           <div key={expense.id} className="bg-white rounded-lg shadow p-4 space-y-3">
             <div className="flex justify-between items-start">
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-500">Descripción</h3>
+              <div className="space-y-0">
+                <h4 className="text-sm font-medium text-gray-500">Descripción</h4>
                 <p className="font-medium text-gray-900">{expense.description}</p>
               </div>
             </div>
@@ -95,16 +95,16 @@ export const ExpenseTable = ({ expenses, onEdit, onDelete, onViewDetails }: Expe
               </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-500">Monto</h4>
-                <p className="font-semibold text-green-600 mt-1">
+                <p className="font-semibold text-green-600">
                   ₡{expense.amount.toLocaleString("es-CR", { minimumFractionDigits: 2 })}
                 </p>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500">Centro de Costo</h4>
+                <h4 className="text-sm font-medium text-gray-500">Centro de Costos</h4>
                 <p className="font-medium text-gray-900">{expense.costCenter}</p>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500">Código DDI</h4>
+                <h4 className="text-sm font-medium text-gray-500">Despacho</h4>
                 <p className="font-medium text-gray-900">{expense.ddiCode || "-"}</p>
               </div>
             </div>

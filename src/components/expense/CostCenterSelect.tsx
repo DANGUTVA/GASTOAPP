@@ -8,24 +8,33 @@ import {
   SelectSeparator,
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
+import React, { useState } from 'react';
+import CostCenterModal from './CostCenterModal';
 
 interface CostCenterSelectProps {
   costCenter: string;
   costCenters: string[];
   onValueChange: (value: string) => void;
-  onAddNewCostCenter?: () => void;
+  onAddNewCostCenter?: (newCostCenter: string) => void;
   className?: string;
 }
 
 export const CostCenterSelect = ({ costCenter, costCenters, onValueChange, onAddNewCostCenter, className }: CostCenterSelectProps) => {
+  const [isModalOpen, setModalOpen] = useState(false);
+
   const handleValueChange = (value: string) => {
     if (value === 'new') {
-      if (onAddNewCostCenter) {
-        onAddNewCostCenter();
-      }
+      setModalOpen(true);
     } else {
       onValueChange(value);
     }
+  };
+
+  const handleSaveNewCostCenter = (newCostCenter: string) => {
+    if (onAddNewCostCenter) {
+      onAddNewCostCenter(newCostCenter);
+    }
+    setModalOpen(false);
   };
 
   return (
@@ -49,6 +58,11 @@ export const CostCenterSelect = ({ costCenter, costCenters, onValueChange, onAdd
           </SelectGroup>
         </SelectContent>
       </Select>
+      <CostCenterModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onSave={handleSaveNewCostCenter}
+      />
     </div>
   );
 };

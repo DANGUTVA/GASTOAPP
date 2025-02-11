@@ -30,7 +30,7 @@ const CostCenterModal: React.FC<CostCenterModalProps> = ({ isOpen, onClose, onSa
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[400px] p-0 gap-0 bg-white rounded-lg overflow-hidden">
-        <DialogTitle className="sr-only">Escribe un nuevo centro de costos</DialogTitle>
+        <DialogTitle className="sr-only">Agregar nuevo centro de costos</DialogTitle>
         <div className="relative">
           <DialogClose className="relative right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
             <X className="h-4 w-4" />
@@ -39,7 +39,7 @@ const CostCenterModal: React.FC<CostCenterModalProps> = ({ isOpen, onClose, onSa
           <div className="flex flex-col items-center p-6 gap-6">
             <Input
               type="text"
-              placeholder="Agrega un nuevo centro de costos"
+              placeholder="Escribe un nuevo centro de costos"
               value={newCostCenter}
               onChange={(e) => setNewCostCenter(e.target.value)}
               className="w-full text-center border rounded-md px-6 py-3"

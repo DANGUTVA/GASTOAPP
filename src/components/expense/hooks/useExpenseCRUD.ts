@@ -100,14 +100,15 @@ export const useExpenseCRUD = () => {
   };
 
   const handleSaveEdit = async (updatedExpense: Expense) => {
+    // Destructure hasReceipt to exclude it from the update payload
+    const { hasReceipt, ...expenseData } = updatedExpense;
+    
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('expenses')
-        .update(updatedExpense)
+        .update(expenseData)
         .eq('id', updatedExpense.id);
-
       if (error) throw error;
-
       editExpense(updatedExpense);
       setIsEditDialogOpen(false);
       toast({
@@ -115,7 +116,7 @@ export const useExpenseCRUD = () => {
         description: "El gasto ha sido actualizado exitosamente"
       });
     } catch (error) {
-      console.error('Error updating expense:', error);
+      console.error('Error updating expense: ', error);
       toast({
         title: "Error",
         description: "No se pudo actualizar el gasto",

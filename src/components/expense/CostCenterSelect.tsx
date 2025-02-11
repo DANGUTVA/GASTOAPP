@@ -23,7 +23,6 @@ export const CostCenterSelect = ({ costCenter, costCenters, onValueChange, onAdd
   const [isModalOpen, setModalOpen] = useState(false);
 
   const handleValueChange = (value: string) => {
-    console.log('Value changed to:', value);
     if (value === 'new') {
       setModalOpen(true);
     } else {
@@ -32,24 +31,20 @@ export const CostCenterSelect = ({ costCenter, costCenters, onValueChange, onAdd
   };
 
   const handleSaveNewCostCenter = (newCostCenter: string) => {
-    console.log('Saving new cost center:', newCostCenter);
+    console.log('Guardando nuevo centro de costos:', newCostCenter);
     if (onAddNewCostCenter) {
       onAddNewCostCenter(newCostCenter);
-      onValueChange(newCostCenter);
+      // Forzamos la selección del nuevo centro de costos
+      setTimeout(() => {
+        console.log('Seleccionando nuevo centro de costos:', newCostCenter);
+        onValueChange(newCostCenter);
+      }, 0);
     }
-    setModalOpen(false);
   };
-
-  const handleCloseModal = () => {
-    setModalOpen(false);
-  };
-
-  console.log('Current costCenter:', costCenter);
-  console.log('Available costCenters:', costCenters);
 
   return (
     <div className={className}>
-      <Select value={costCenter} onValueChange={handleValueChange}>
+      <Select value={costCenter || ''} onValueChange={handleValueChange}>
         <SelectTrigger>
           <SelectValue placeholder="Seleccione un centro de costo" />
         </SelectTrigger>
@@ -70,7 +65,7 @@ export const CostCenterSelect = ({ costCenter, costCenters, onValueChange, onAdd
       </Select>
       <CostCenterModal
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        onClose={() => setModalOpen(false)}
         onSave={handleSaveNewCostCenter}
       />
     </div>

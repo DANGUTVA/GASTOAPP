@@ -17,10 +17,13 @@ interface CostCenterModalProps {
 const CostCenterModal: React.FC<CostCenterModalProps> = ({ isOpen, onClose, onSave }) => {
   const [newCostCenter, setNewCostCenter] = useState('');
 
-  const handleSave = () => {
+  const handleSave = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (newCostCenter.trim()) {
       onSave(newCostCenter.trim());
       setNewCostCenter('');
+      // Cerramos el modal después de guardar
+      onClose();
     }
   };
 
@@ -40,6 +43,11 @@ const CostCenterModal: React.FC<CostCenterModalProps> = ({ isOpen, onClose, onSa
               value={newCostCenter}
               onChange={(e) => setNewCostCenter(e.target.value)}
               className="w-full text-center border rounded-md px-6 py-3"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSave(e as any);
+                }
+              }}
             />
             <div className="flex justify-center gap-4">
               <button
